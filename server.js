@@ -33,10 +33,9 @@ app.use('/professional', professionalRoutes);
 app.use('/contacts', contactsRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Serve index.html for the root (frontend)
+// Portfolio at root; API docs at /api-docs
 app.get('/', (req, res) => {
-  // Redirect root to Swagger UI so you can interact with the API in production
-  res.redirect('/api-docs');
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
 // Health check endpoint

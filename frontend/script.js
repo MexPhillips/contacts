@@ -1,25 +1,28 @@
-// helpful link for converting image to base64: https://elmah.io/tools/base64-image-encoder/
 async function apiFetch(url) {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    return await response.json();
-  } catch (error) {
-    console.error('API fetch failed:', error);
-    throw error;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   }
+  return response.json();
 }
 
-// Use a relative API path in production so the frontend can be served from the same origin.
-const apiBaseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
-  ? 'http://localhost:8080'
-  : '';
+const apiBaseUrl =
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1' ||
+  window.location.protocol === 'file:'
+    ? 'http://localhost:3000'
+    : '';
 
 const getData = async () => {
-  const data = await apiFetch(`${apiBaseUrl}/professional`);
-  displayAllData(data);
+  try {
+    const data = await apiFetch(`${apiBaseUrl}/professional`);
+    displayAllData(data);
+  } catch (error) {
+    console.error('API fetch failed:', error);
+    document.getElementById('professionalName').textContent = 'Phillip Kaluba';
+    document.getElementById('contactText').textContent =
+      'Could not load profile data. Start the server and refresh.';
+  }
 };
 
 function displayAllData(data) {
@@ -34,49 +37,49 @@ function displayAllData(data) {
 }
 
 function displayProfessionalName(n) {
-  let professionalName = document.getElementById('professionalName');
-  professionalName.innerHTML = n;
+  document.getElementById('professionalName').textContent = n;
+  document.title = n;
 }
 
 function displayImage(img) {
-  let image = document.getElementById('professionalImage');
-  image.src = `data:image/png;base64, ${img}`;
+  const image = document.getElementById('professionalImage');
+  if (img) {
+    image.src = `data:image/png;base64,${img}`;
+    image.alt = `${document.getElementById('professionalName').textContent || 'Profile'} photo`;
+  }
 }
+
 function displayPrimaryDescription(data) {
-  let nameLink = document.getElementById('nameLink');
-  nameLink.innerHTML = data.nameLink.firstName;
+  const nameLink = document.getElementById('nameLink');
+  nameLink.textContent = data.nameLink.firstName;
   nameLink.href = data.nameLink.url;
-  let primaryDescription = document.getElementById('primaryDescription');
-  primaryDescription.innerHTML = data.primaryDescription;
+
+  document.getElementById('primaryDescription').textContent = data.primaryDescription;
 }
 
 function displayWorkDescription(data) {
-  let workDescription1 = document.getElementById('workDescription1');
-  workDescription1.innerHTML = data.workDescription1;
-  let workDescription2 = document.getElementById('workDescription2');
-  workDescription2.innerHTML = data.workDescription2;
+  document.getElementById('workDescription1').textContent = data.workDescription1;
+  document.getElementById('workDescription2').textContent = data.workDescription2;
 }
 
 function displayLinkTitleText(data) {
-  let linkTitle = document.getElementById('linkTitleText');
-  linkTitle.innerHTML = data.linkTitleText;
+  document.getElementById('linkTitleText').textContent = data.linkTitleText;
 }
 
 function displayLinkedInLink(data) {
-  let linkedInLink = document.getElementById('linkedInLink');
-  linkedInLink.innerHTML = data.linkedInLink.text;
+  const linkedInLink = document.getElementById('linkedInLink');
   linkedInLink.href = data.linkedInLink.link;
+  linkedInLink.querySelector('.social-label').textContent = data.linkedInLink.text;
 }
 
 function displayGitHubLink(data) {
-  let githubLink = document.getElementById('githubLink');
-  githubLink.innerHTML = data.githubLink.text;
+  const githubLink = document.getElementById('githubLink');
   githubLink.href = data.githubLink.link;
+  githubLink.querySelector('.social-label').textContent = data.githubLink.text;
 }
 
 function displayContactText(data) {
-  let contactText = document.getElementById('contactText');
-  contactText.innerHTML = data.contactText || '';
+  document.getElementById('contactText').textContent = data.contactText || '';
 }
 
 getData();
